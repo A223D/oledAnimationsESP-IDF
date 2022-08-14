@@ -41,7 +41,7 @@ for file in files:
     for i in range(0, 64):
         for j in range(0, 64):
             #print("Orig ", str(i), " ", str(j))
-            if (px[i, j] != (255, 255, 255, 255)):
+            if (px[i, j][0] < 250 and px[i, j][1] < 250 and px[i, j][2] < 250):
                 drawPixel(i + 32, j, 1)
 
     for i in range(0, 1024):

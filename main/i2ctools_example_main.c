@@ -27,7 +27,6 @@ static const char *TAG = "OLEDTest";
 
 int togInverse = 0;
 
-
 static uint8_t buffer[1024];
 i2c_cmd_handle_t emptyHandle = NULL;
 i2c_cmd_handle_t fullHandle = NULL;
@@ -292,7 +291,7 @@ void bufToScreen(void)
 
 void bufToScreenAnimation(void)
 {
-    for (int i = 0; i < 41; i++)
+    for (int i = 0; i < 34; i++)
     {
         fullHandle = i2c_cmd_link_create();
         if (fullHandle == NULL)
@@ -310,6 +309,7 @@ void bufToScreenAnimation(void)
         ESP_ERROR_CHECK(i2c_master_stop(fullHandle));
         ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_0, fullHandle, I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS));
         i2c_cmd_link_delete(fullHandle);
+        vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
 
@@ -339,6 +339,6 @@ void app_main(void)
         // togInverse = (togInverse == 1 ? 0 : 1);
 
         bufToScreenAnimation();
-        vTaskDelay(10/portTICK_PERIOD_MS);
+        // vTaskDelay(10/portTICK_PERIOD_MS);
     }
 }
