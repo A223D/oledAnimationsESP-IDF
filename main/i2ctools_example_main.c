@@ -46,47 +46,6 @@ static esp_err_t setupI2c(void)
     return i2c_driver_install(0, conf.mode, 0, 0, 0);
 }
 
-static esp_err_t screenFlick(void)
-{
-    i2c_cmd_handle_t handle = i2c_cmd_link_create();
-    if (handle == NULL)
-    {
-        ESP_LOGI(TAG, "Not enough memory");
-        while (true)
-        {
-            ESP_LOGI(TAG, ".");
-        }
-    }
-    ESP_ERROR_CHECK(i2c_master_start(handle));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, I2C_ADDRESS, true));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xAE, true));
-
-    ESP_ERROR_CHECK(i2c_master_stop(handle));
-    ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_0, handle, I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS));
-    i2c_cmd_link_delete(handle);
-
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    handle = i2c_cmd_link_create();
-    if (handle == NULL)
-    {
-        ESP_LOGI(TAG, "Not enough memory");
-        while (true)
-        {
-            ESP_LOGI(TAG, ".");
-        }
-    }
-    ESP_ERROR_CHECK(i2c_master_start(handle));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, I2C_ADDRESS, true));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xAF, true));
-
-    ESP_ERROR_CHECK(i2c_master_stop(handle));
-    ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_0, handle, I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS));
-    i2c_cmd_link_delete(handle);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    return ESP_OK;
-}
 
 static esp_err_t beginScreen1(void)
 {
@@ -120,12 +79,19 @@ static esp_err_t beginScreen1(void)
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xDA, true)); // Set com pin configuration
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x12, true)); //
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x81, true)); // set contrast
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xB0, true));
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xB0, true)); //176
+    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x01, true)); //1
+    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xFF, true)); //255
+    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x7F, true)); //127
+
+
 
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xD9, true)); // Set precharge
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x22, true));
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xDB, true)); // Set vcom
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x20, true)); //
+    //ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x20, true)); //0.77v
+    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x30, true)); //0.83v
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x10, true)); //0.65v     
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA4, true)); // display gddr
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA6, true)); // set inverse mode
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x2E, true)); // Deactivate scroll
@@ -137,56 +103,6 @@ static esp_err_t beginScreen1(void)
     return ESP_OK;
 }
 
-static esp_err_t beginScreen2(void)
-{
-    i2c_cmd_handle_t handle = i2c_cmd_link_create();
-    if (handle == NULL)
-    {
-        ESP_LOGI(TAG, "Not enough memory");
-        while (true)
-        {
-            ESP_LOGI(TAG, ".");
-        }
-    }
-    ESP_ERROR_CHECK(i2c_master_start(handle));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, I2C_ADDRESS, true));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x0, true));  // control byte
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xAE, true)); // screen to sleep mode
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xD5, true)); // Set refresh rate and divider
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x90, true)); //
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA8, true)); // Set number of columns multiplex ration
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x3F, true));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xD3, true)); // Set display offset
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x00, true));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x40, true)); // Set display start line check 40
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA1, true));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xC8, true)); // Set comin direction
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xDA, true)); // Set com pin configuration
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x12, true)); //
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x81, true)); // set contrast
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xB0, true));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xD9, true)); // Set precharge
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x22, true));
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xDB, true)); // Set vcom
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x30, true)); //
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA4, true)); // display gddr
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA6, true)); // set inverse mode
-
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x8D, true)); // Charge pump settings
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x14, true)); // changing this to 14
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xAF, true)); // Turn on display
-
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x20, true)); //Set memory addressing mode
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x00, true)); //horizontal
-
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x2E, true)); //Deactivate scroll
-
-    ESP_ERROR_CHECK(i2c_master_stop(handle));
-    ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_0, handle, I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS));
-    i2c_cmd_link_delete(handle);
-
-    return ESP_OK;
-}
 
 void writeToScreen(void)
 {
