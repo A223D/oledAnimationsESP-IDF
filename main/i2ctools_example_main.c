@@ -87,17 +87,17 @@ static esp_err_t beginScreen1(void)
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xDA, true)); // Set com pin configuration
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x12, true)); //
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x81, true)); // set contrast
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xB0, true)); // 176
+    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xB0, true)); // 176
     // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x01, true)); //1
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xFF, true)); //255
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xFF, true)); //255
     // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x7F, true)); //127
 
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xD9, true)); // Set precharge
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x22, true));
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xDB, true)); // Set vcom
     // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x20, true)); //0.77v
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x30, true)); //0.83v
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x10, true)); // 0.65v
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x30, true)); //0.83v
+    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x10, true)); // 0.65v
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA4, true)); // display gddr
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA6, true)); // set inverse mode
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x2E, true)); // Deactivate scroll
@@ -212,7 +212,7 @@ void bufToScreen(void)
 
 void bufToScreenAnimation(void)
 {
-    for (int i = 0; i < 34; i++)
+    for (int i = 0; i < 37; i++)
     {
         fullHandle = i2c_cmd_link_create();
         if (fullHandle == NULL)
@@ -230,7 +230,6 @@ void bufToScreenAnimation(void)
         ESP_ERROR_CHECK(i2c_master_stop(fullHandle));
         ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_0, fullHandle, I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS));
         i2c_cmd_link_delete(fullHandle);
-        vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
 
