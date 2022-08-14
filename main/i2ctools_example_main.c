@@ -46,7 +46,6 @@ static esp_err_t setupI2c(void)
     return i2c_driver_install(0, conf.mode, 0, 0, 0);
 }
 
-
 static esp_err_t beginScreen1(void)
 {
     i2c_cmd_handle_t handle = i2c_cmd_link_create();
@@ -74,24 +73,31 @@ static esp_err_t beginScreen1(void)
 
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x20, true)); // Set memory addressing mode
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x00, true)); // horizontal
+    // trying column and page address, so resets properly
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x21, true)); // Set column address register
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x0, true));  // set start column to 0
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x7F, true)); // set end column to 127 (since width is 128 pixels)
+
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x22, true)); // Set page address register
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x0, true));  // set start column to 0
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x7, true)); // set end column to 7 (since width is 8 pages or 8*8=64 pixels)
+
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA1, true)); // Enable remapping of memory
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xC8, true)); // Set comin direction
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xDA, true)); // Set com pin configuration
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x12, true)); //
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x81, true)); // set contrast
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xB0, true)); //176
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xB0, true)); // 176
     // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x01, true)); //1
     // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xFF, true)); //255
     // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x7F, true)); //127
 
-
-
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xD9, true)); // Set precharge
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x22, true));
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xDB, true)); // Set vcom
-    //ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x20, true)); //0.77v
+    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x20, true)); //0.77v
     // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x30, true)); //0.83v
-    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x10, true)); //0.65v     
+    ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x10, true)); // 0.65v
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA4, true)); // display gddr
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0xA6, true)); // set inverse mode
     ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x2E, true)); // Deactivate scroll
@@ -102,7 +108,6 @@ static esp_err_t beginScreen1(void)
 
     return ESP_OK;
 }
-
 
 void writeToScreen(void)
 {
