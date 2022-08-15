@@ -57,7 +57,7 @@ esp_err_t beginScreen(void)
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x0, true));
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x40, true)); // Set display start line check 40
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x8D, true)); // Charge pump settings
-    ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x14, true));
+    ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x14, true)); //charge pump enable
 
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x20, true)); // Set memory addressing mode
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x00, true)); // horizontal
@@ -73,7 +73,7 @@ esp_err_t beginScreen(void)
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0xA1, true)); // Enable remapping of memory
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0xC8, true)); // Set comin direction
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0xDA, true)); // Set com pin configuration
-    ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x12, true)); //
+    ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x12, true)); // hardware compin config
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x81, true)); // set contrast
     // ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0xB0, true)); // 176
     // ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x01, true)); //1
@@ -81,11 +81,9 @@ esp_err_t beginScreen(void)
     // ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x7F, true)); //127
 
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0xD9, true)); // Set precharge
-    ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x22, true));
+    ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x22, true)); //Set both Phase 1 and phase 2 to 2 DCLK
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0xDB, true)); // Set vcom
-    // ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x20, true)); //0.77v
-    ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x30, true)); // 0.83v
-    // ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x10, true)); // 0.65v
+    ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x20, true)); //0.77v
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0xA4, true)); // display gddr
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0xA6, true)); // set inverse mode
     ESP_ERROR_CHECK(i2c_master_write_byte(fullHandle, 0x2E, true)); // Deactivate scroll
