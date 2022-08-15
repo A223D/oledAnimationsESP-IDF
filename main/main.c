@@ -12,7 +12,7 @@
 #include "driver/i2c.h"
 #include "aniBuf.h"
 
-static const char *TAG = "OLEDTest";
+static const char *TAG = "fastOLED";
 
 #define I2C_MASTER_FREQ_HZ 1000000 /*!< I2C master clock frequency */ /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_TIMEOUT_MS 50
@@ -109,70 +109,6 @@ static esp_err_t beginScreen1(void)
     return ESP_OK;
 }
 
-void writeToScreen(void)
-{
-
-    // i2c_cmd_handle_t handle = i2c_cmd_link_create();
-    // if (handle == NULL){
-    //     ESP_LOGI(TAG, "Not enough memory");
-    //     while(true){
-    //         ESP_LOGI(TAG, ".");
-    //     }
-    // }
-    // ESP_ERROR_CHECK(i2c_master_start(handle));
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, I2C_ADDRESS, false));
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x0, false)); //control byte
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x22, false)); // Set page address start and end
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x0, false));
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x3F, false));
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x21, false)); // Set column address start and end
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x0, false));
-    // ESP_ERROR_CHECK(i2c_master_write_byte(handle, 0x7F, false));
-    // ESP_ERROR_CHECK(i2c_master_stop(handle));
-    // ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_0, handle, I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS));
-    // i2c_cmd_link_delete(handle);
-
-    // if(togInverse){
-    //     ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_0, fullHandle, I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS));
-    // }else{
-    //     ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_0, emptyHandle, I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS));
-    // }
-    ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_0, fullHandle, I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS));
-
-    // i2c_cmd_link_delete(handle);
-}
-
-void writeBuffer(uint8_t *buffer)
-{
-    // do all setup for each screen write
-
-    for (int pageGroup = 0; pageGroup < NUM_PAGES; pageGroup++)
-    { // for each page row (horizontal rectangular collection) //indicates row number multiplier
-
-        for (int rowGroup = 0; rowGroup < WIDTH / 8; rowGroup++)
-        { // for each byte column in a row (vertical rectangle in page) //indicates col number multiplier
-
-            for (int bitPosition = 7; bitPosition >= 0; bitPosition--)
-            { // for each bit position in a byte. Going MSB first (thinner rectangle) //indicates bit col number
-
-                uint8_t convertedByte = 0x0;
-
-                for (int byteNum = 0; byteNum < NUM_ROWS_IN_PAGE; byteNum++)
-                { // each speciifc bit //indicates bit row number
-
-                    convertedByte |= ((buffer[(((pageGroup * 8) + byteNum) * (WIDTH / 8)) + rowGroup] >> bitPosition) & 0x01) << byteNum;
-                    // printf("%X\n", ((buffer[(((pageGroup*8) + byteNum)*(WIDTH/8)) + rowGroup] >> bitPosition) & 0x01) << byteNum);
-                    // printf("%X\n", convertedByte);
-                    // vTaskDelay(10/portTICK_PERIOD_MS);
-                }
-                // converted byte is complete here
-
-                ESP_LOGI(TAG, "%X", convertedByte);
-                vTaskDelay(10000 / portTICK_PERIOD_MS);
-            }
-        }
-    }
-}
 
 void writeToBuffer(int x, int y, int colour)
 {
@@ -236,29 +172,11 @@ void bufToScreenAnimation(void)
 void app_main(void)
 {
 
-    // for (int i = 0; i < 1024; i++)
-    // {
-    //     buffer[i] = 0x0;
-    // }
-
     ESP_ERROR_CHECK(setupI2c()); // just the I2C config. No screen business
     ESP_LOGI(TAG, "Initialized successfully");
     ESP_ERROR_CHECK(beginScreen1()); // basic screen config. No need to touch
     while (true)
     {
-        // ESP_LOGI(TAG, "Start");
-        // for (int i = 0; i < 128; i++)
-        // {
-        //     for (int j = 0; j < 64; j++)
-        //     {
-        //         writeToBuffer(i, j, togInverse);
-        //     }
-        // }
-
-        // bufToScreen();
-        // togInverse = (togInverse == 1 ? 0 : 1);
-
         bufToScreenAnimation();
-        // vTaskDelay(10/portTICK_PERIOD_MS);
     }
 }
